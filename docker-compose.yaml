@@ -1,0 +1,38 @@
+services:
+  auth:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: pnpm run start:dev auth
+    env_file:
+      - ./apps/auth/.env
+    ports:
+      - 3001:3001
+    volumes:
+      - .:/usr/src/app
+
+  postgres:
+    image: postgres:15.3
+    container_name: postgres-db-local
+    restart: always
+    env_file:
+      - .env.database
+    networks:
+      - postgres-db
+    stdin_open: true
+    tty: true
+    ports:
+      - 5421:5421 # Custom port
+    volumes:
+      - postgres-db-vol:/var/lib/postgresql/data
+
+networks:
+  postgres-db:
+    name: postgres-db
+    driver: bridge
+
+volumes:
+  postgres-db-vol:
+    name: postgres-db-vol
